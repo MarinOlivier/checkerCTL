@@ -3,7 +3,7 @@ package main;
 public class Main {
 
 	public static void main(String[] args) throws ParsingError {
-		String CTLFormula = "(AX(a OR x)) AND ((!EX!p) AND p)";
+		String CTLFormula = "(AG(!q OR f AND (a AND (EX(a OR x))a)) ET !p)";
 
         Checker.ParseExpression(CTLFormula);
 	}

@@ -29,10 +29,33 @@ public class Checker {
 
     static final String O_parOpen = "(";
 
-    public static String label(String exp) throws Error {
+    public static String label(String exp, Model M) throws Error {
         // If φ = p
+        if(exp.equals("p")) {
+            for (Node n: M._nodes) {
+                if(n.getVal().equals(exp))
+                    n.setPhi(true);
+                else
+                    n.setPhi(false);
+            }
+        }
         // Else if φ = ¬ φ′
+        else if(exp.equals("!p")) {
+            label(exp.substring(1), M);
+            for (Node n: M._nodes) {
+                n.setPhi(!n.getPhi());
+            }
+        }
         // Else if φ = φ′ ∧ φ′′
+        else if(exp.equals("HAVE AND")){
+            String op1 = exp.substring(0, exp.indexOf("AND")-1);
+            String op2 = exp.substring(exp.indexOf("AND")+4, exp.length());
+
+            label(op1, M);
+            label(op2, M);
+
+
+        }
         // Else if φ = EX φ′
         // Else if φ = Eφ′U φ′′
         // Else if φ = Aφ′U φ′′

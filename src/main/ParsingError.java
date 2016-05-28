@@ -21,8 +21,8 @@ class OperatorError extends ParsingError {
     }
 }
 
-class ExpressionError extends ParsingError {
-    String _msg = "Expression Error";
+class ParenthesisError extends ParsingError {
+    String _msg = "Parenthesis Error";
 
     @Override
     public String toString() {
@@ -30,8 +30,8 @@ class ExpressionError extends ParsingError {
     }
 }
 
-class ParenthesisError extends ParsingError {
-    String _msg = "Parenthesis Error";
+class NegationError extends ParsingError {
+    String _msg = "Negation Error";
 
     @Override
     public String toString() {

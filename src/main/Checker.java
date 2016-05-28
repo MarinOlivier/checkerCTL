@@ -76,19 +76,20 @@ public class Checker {
         return "Not recognized";
     }
 
-    public static boolean ParseExpression(String s) throws ParsingError {
+    public static boolean ParseExpression(String exp) throws ParsingError {
         /* Evaluation des parentheses */
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == P_LEFT)
+        for (int i = 0; i < exp.length(); i++) {
+            if (exp.charAt(i) == P_LEFT)
                 _nbP_LEFT++;
-            else if (s.charAt(i) == P_RIGHT)
+            else if (exp.charAt(i) == P_RIGHT)
                 _nbP_RIGHT++;
         }
         if (_nbP_LEFT != _nbP_RIGHT)
             throw new ParenthesisError();
 
+        System.out.println("exp = " + exp);
         /* Extraction des phi */
-        satisfy(s);
+        satisfy(exp);
 
         return true;
     }
@@ -107,29 +108,43 @@ public class Checker {
             }
         }
 
+        /* !(φ) */
+        if (exp.startsWith(String.valueOf(NOT + P_LEFT))) {
+            /* ( */
+            String phi = satisfy(exp.substring(2));
+            /* ) */
+            if (exp.startsWith(String.valueOf(P_RIGHT)))
+                return phi.substring(1);
+            else
+                throw new NegationError();
+
+        }
+
         /* (φ' * φ'') */
         if (exp.startsWith(String.valueOf(P_LEFT))) {
-            System.out.println("left = " + exp.substring(1));
-            String left = satisfy(exp.substring(1));
-
-            String right = "";
+            /* ( */
+            System.out.println("phi1 = " + exp.substring(1));
+            String phi1 = satisfy(exp.substring(1));
+            String phi2 = "";
             /* OR */
-            if (left.startsWith(OR)) {
-                System.out.println("right = " + left.substring(OR.length()));
-                right = satisfy(left.substring(OR.length()));
+            if (phi1.startsWith(OR)) {
+                System.out.println("phi2 = " + phi1.substring(OR.length()));
+                phi2 = satisfy(phi1.substring(OR.length()));
             /* AND */
-            } else if (left.startsWith(AND)) {
-                System.out.println("right = " + left.substring(AND.length()));
-                right = satisfy(left.substring(AND.length()));
+            } else if (phi1.startsWith(AND)) {
+                System.out.println("phi2 = " + phi1.substring(AND.length()));
+                phi2 = satisfy(phi1.substring(AND.length()));
             /* UNION */
-            } else if (left.startsWith(U)) {  // UNION
-                System.out.println("right = " + left.substring(U.length()));
-                right = satisfy(left.substring(U.length()));
+            } else if (phi1.startsWith(U)) {  // UNION
+                System.out.println("phi2 = " + phi1.substring(U.length()));
+                phi2 = satisfy(phi1.substring(U.length()));
+            } else if (phi2.startsWith(String.valueOf(P_LEFT))) {
+                System.out.println("phi1 = " + phi1.substring(1));
+                return "";
+            } else if (phi2.startsWith(String.valueOf(P_RIGHT))) {
+                return "";
             }
 
-            // )
-            if (right.startsWith(String.valueOf(P_RIGHT)))
-                return exp;
         }
 
         return exp;

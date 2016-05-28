@@ -1,21 +1,33 @@
 package main;
 
+import sun.jvm.hotspot.asm.sparc.SPARCArgument;
+
 /**
  * Created by olivier on 19/05/2016.
  */
 public class Checker {
-    /* Operator */
-    static String AND = "AND";
-    static String OR = "OR";
+    /* Operators */
+    static String AND = " ^ ";
+    static String OR = " v ";
+    static String U = " U ";
 
     /* Negation */
     static char NOT = '!';
 
+    /* Brackets */
     static char P_LEFT = '(';
     static char P_RIGHT = ')';
-    static char E = 'E';
-    static char A = 'A';
-    static char X = 'X';
+
+    static String E = "E";
+    static String A = "A";
+
+    static String G = "G";
+    static String F = "F";
+    static String X = "X";
+
+    static final String[] P = {"AG", "AF", "AX", "EG", "EF", "EX", "A", "E", "X"};
+
+    static char SPACE = ' ';
 
     static final String atomic[] = {"a","b","c","d","e","f","g","h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
@@ -76,43 +88,60 @@ public class Checker {
             throw new ParenthesisError();
 
         /* Extraction des phi */
-        for(int i = 0; i < _nbP_LEFT; i++)
-            System.out.println("phi = " + phi(s));
+        satisfy(s);
 
         return true;
     }
 
-    public static String phi(String s) {
-        int i = 0;
-        if (!_firstP) {
-            /* Extraction du premier phi (i.e. le plus profond dans la chaine) */
-            for (i = 0; i < s.length(); i++) {
-                if (s.charAt(i) == P_LEFT && _indexP_LEFT != i)
-                    _indexP_LEFT = i;
-                else if (s.charAt(i) == P_RIGHT && _indexP_RIGHT != i) {
-                    _indexP_RIGHT = i;
-                    _firstP = true;
-                    break;
-                }
-            }
-        } else {
-            /* On remonte vers la gauche apres la premiere parenthese gauche trouvee */
-            for (i = _indexP_LEFT-1; i >= 0; i--) {
-                if (s.charAt(i) == P_LEFT) {
-                    _indexP_LEFT = i;
-                    break;
-                }
-            }
+    public static String satisfy(String exp) throws ParsingError {
+        if (startsWithAtomic(exp)) {
+            System.out.println(exp.substring(1));
+            return exp.substring(1);
+        }
 
-            /* On remonte vers la droite apres la premiere parenthese droite trouvee */
-            for (i = _indexP_RIGHT+1; i < s.length(); i++) {
-                if (s.charAt(i) == P_RIGHT) {
-                    _indexP_RIGHT = i;
-                    break;
-                }
+        /* AG, AF, AX, EG, EF, EX, A, E, X */
+        for (int i = 0; i < P.length; i++) {
+            if (exp.startsWith(P[i])) {
+                System.out.println(exp.substring(P[i].length()));
+                return satisfy(exp.substring(P[i].length()));
             }
         }
-        return s.substring(_indexP_LEFT, _indexP_RIGHT+1);
+
+        /* (φ' * φ'') */
+        if (exp.startsWith(String.valueOf(P_LEFT))) {
+            System.out.println("left = " + exp.substring(1));
+            String left = satisfy(exp.substring(1));
+
+            String right = "";
+            /* OR */
+            if (left.startsWith(OR)) {
+                System.out.println("right = " + left.substring(OR.length()));
+                right = satisfy(left.substring(OR.length()));
+            /* AND */
+            } else if (left.startsWith(AND)) {
+                System.out.println("right = " + left.substring(AND.length()));
+                right = satisfy(left.substring(AND.length()));
+            /* UNION */
+            } else if (left.startsWith(U)) {  // UNION
+                System.out.println("right = " + left.substring(U.length()));
+                right = satisfy(left.substring(U.length()));
+            }
+
+            // )
+            if (right.startsWith(String.valueOf(P_RIGHT)))
+                return exp;
+        }
+
+        return exp;
+    }
+
+    public static boolean startsWithAtomic(String exp) {
+        for (String s : atomic) {
+            if (exp.startsWith(s))
+                return true;
+        }
+
+        return false;
     }
 }
 

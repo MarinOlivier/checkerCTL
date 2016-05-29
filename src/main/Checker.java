@@ -1,40 +1,33 @@
 package main;
 
-import sun.jvm.hotspot.asm.sparc.SPARCArgument;
-
 /**
  * Created by olivier on 19/05/2016.
  */
 public class Checker {
-    /* Operators */
-    static String AND = " ^ ";
-    static String OR = " v ";
-    static String U = " U ";
+    /* Operator */
+    static String AND = "AND";
+    static String OR = "OR";
 
     /* Negation */
     static char NOT = '!';
 
-    /* Brackets */
     static char P_LEFT = '(';
     static char P_RIGHT = ')';
-
-    /* Symbols */
-    static String E = "E";
-    static String A = "A";
-
-    static String G = "G";
-    static String F = "F";
-    static String X = "X";
-
-    /* Errors */
-    static String[] Err = {"!!", "! ", "(v", "(^"};
-
-    static final String[] P = {"AG", "AF", "AX", "EG", "EF", "EX", "A", "E", "X"};
+    static char E = 'E';
+    static char A = 'A';
+    static char X = 'X';
 
     static final String atomic[] = {"a","b","c","d","e","f","g","h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
+
     static int _nbP_LEFT = 0;
     static int _nbP_RIGHT = 0;
+
+    static int _indexP_LEFT = 0;
+    static int _indexP_RIGHT = 0;
+    static boolean _firstP = false;
+
+    static final String O_parOpen = "(";
 
     public static String label(String exp, Model M) throws Error {
         // If φ = p
@@ -71,85 +64,55 @@ public class Checker {
         return "Not recognized";
     }
 
-    public static boolean ParseExpression(String exp) throws ParsingError {
+    public static boolean ParseExpression(String s) throws ParsingError {
         /* Evaluation des parentheses */
-        for (int i = 0; i < exp.length(); i++) {
-            if (exp.charAt(i) == P_LEFT)
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == P_LEFT)
                 _nbP_LEFT++;
-            else if (exp.charAt(i) == P_RIGHT)
+            else if (s.charAt(i) == P_RIGHT)
                 _nbP_RIGHT++;
         }
         if (_nbP_LEFT != _nbP_RIGHT)
             throw new ParenthesisError();
 
-        System.out.println("exp = " + exp);
         /* Extraction des phi */
-        satisfy(exp);
+        for(int i = 0; i < _nbP_LEFT; i++)
+            System.out.println("phi = " + phi(s));
 
         return true;
     }
 
-    public static String satisfy(String exp) throws ParsingError {
-        /* Exceptions */
-        for (String err : Err) {
-            if (exp.startsWith(err))
-                throw new ExpressionError(exp.substring(0, 2));
-        }
+    public static String phi(String s) {
+        int i = 0;
+        if (!_firstP) {
+            /* Extraction du premier phi (i.e. le plus profond dans la chaine) */
+            for (i = 0; i < s.length(); i++) {
+                if (s.charAt(i) == P_LEFT && _indexP_LEFT != i)
+                    _indexP_LEFT = i;
+                else if (s.charAt(i) == P_RIGHT && _indexP_RIGHT != i) {
+                    _indexP_RIGHT = i;
+                    _firstP = true;
+                    break;
+                }
+            }
+        } else {
+            /* On remonte vers la gauche apres la premiere parenthese gauche trouvee */
+            for (i = _indexP_LEFT-1; i >= 0; i--) {
+                if (s.charAt(i) == P_LEFT) {
+                    _indexP_LEFT = i;
+                    break;
+                }
+            }
 
-        // TODO Supprimer ')' dans exp pour pouvoir la traiter
-        System.out.println(exp);
-
-        if (startsWithAtomic(exp)) {
-            System.out.println(exp.substring(1));
-            return exp.substring(1);
-        }
-
-        /* AG, AF, AX, EG, EF, EX, A, E, X */
-        for (int i = 0; i < P.length; i++) {
-            if (exp.startsWith(P[i])) {
-                //System.out.println(exp.substring(P[i].length()));
-                return satisfy(exp.substring(P[i].length()));
+            /* On remonte vers la droite apres la premiere parenthese droite trouvee */
+            for (i = _indexP_RIGHT+1; i < s.length(); i++) {
+                if (s.charAt(i) == P_RIGHT) {
+                    _indexP_RIGHT = i;
+                    break;
+                }
             }
         }
-
-        /* (φ' * φ''), !(φ) */
-        char phi = exp.charAt(0);
-        if (phi == P_LEFT || phi == NOT) {
-            /* ( */
-            String phi1;
-            if (phi == P_LEFT)
-                phi1 = satisfy(exp.substring(1));
-            else
-                phi1 = satisfy(exp.substring(2));
-
-            String phi2 = "";
-            /* OR */
-            if (phi1.startsWith(OR))
-                phi2 = satisfy(phi1.substring(OR.length()));
-            /* AND */
-            else if (phi1.startsWith(AND))
-                phi2 = satisfy(phi1.substring(AND.length()));
-            /* UNION */
-            else if (phi1.startsWith(U))
-                phi2 = satisfy(phi1.substring(U.length()));
-            /* ( */
-            else if (phi2.startsWith(String.valueOf(P_LEFT)))
-                return phi1.substring(1);
-            /* ) */
-            else
-                return "";
-        }
-
-        return exp;
-    }
-
-    public static boolean startsWithAtomic(String exp) {
-        for (String s : atomic) {
-            if (exp.startsWith(s))
-                return true;
-        }
-
-        return false;
+        return s.substring(_indexP_LEFT, _indexP_RIGHT+1);
     }
 }
 

@@ -12,17 +12,8 @@ public class ParsingError extends Exception {
     }
 }
 
-class OperatorError extends ParsingError {
-    String _msg = "Operator Error";
-
-    @Override
-    public String toString() {
-        return super.toString() + _msg;
-    }
-}
-
 class ParenthesisError extends ParsingError {
-    String _msg = "Parenthesis Error";
+    String _msg = "expected parenthesis";
 
     @Override
     public String toString() {
@@ -30,8 +21,12 @@ class ParenthesisError extends ParsingError {
     }
 }
 
-class NegationError extends ParsingError {
-    String _msg = "Negation Error";
+class ExpressionError extends ParsingError {
+    String _msg = "unrecognized expression at ";
+
+    ExpressionError(String err) {
+        _msg += err + "...";
+    }
 
     @Override
     public String toString() {

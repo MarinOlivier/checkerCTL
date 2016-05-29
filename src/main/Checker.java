@@ -18,6 +18,7 @@ public class Checker {
     static char P_LEFT = '(';
     static char P_RIGHT = ')';
 
+    /* Symbols */
     static String E = "E";
     static String A = "A";
 
@@ -25,21 +26,15 @@ public class Checker {
     static String F = "F";
     static String X = "X";
 
-    static final String[] P = {"AG", "AF", "AX", "EG", "EF", "EX", "A", "E", "X"};
+    /* Errors */
+    static String[] Err = {"!!", "! ", "(v", "(^"};
 
-    static char SPACE = ' ';
+    static final String[] P = {"AG", "AF", "AX", "EG", "EF", "EX", "A", "E", "X"};
 
     static final String atomic[] = {"a","b","c","d","e","f","g","h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
-
     static int _nbP_LEFT = 0;
     static int _nbP_RIGHT = 0;
-
-    static int _indexP_LEFT = 0;
-    static int _indexP_RIGHT = 0;
-    static boolean _firstP = false;
-
-    static final String O_parOpen = "(";
 
     public static String label(String exp, Model M) throws Error {
         // If φ = p
@@ -95,6 +90,15 @@ public class Checker {
     }
 
     public static String satisfy(String exp) throws ParsingError {
+        /* Exceptions */
+        for (String err : Err) {
+            if (exp.startsWith(err))
+                throw new ExpressionError(exp.substring(0, 2));
+        }
+
+        // TODO Supprimer ')' dans exp pour pouvoir la traiter
+        System.out.println(exp);
+
         if (startsWithAtomic(exp)) {
             System.out.println(exp.substring(1));
             return exp.substring(1);
@@ -103,48 +107,37 @@ public class Checker {
         /* AG, AF, AX, EG, EF, EX, A, E, X */
         for (int i = 0; i < P.length; i++) {
             if (exp.startsWith(P[i])) {
-                System.out.println(exp.substring(P[i].length()));
+                //System.out.println(exp.substring(P[i].length()));
                 return satisfy(exp.substring(P[i].length()));
             }
         }
 
-        /* !(φ) */
-        if (exp.startsWith(String.valueOf(NOT + P_LEFT))) {
+        /* (φ' * φ''), !(φ) */
+        char phi = exp.charAt(0);
+        if (phi == P_LEFT || phi == NOT) {
             /* ( */
-            String phi = satisfy(exp.substring(2));
-            /* ) */
-            if (exp.startsWith(String.valueOf(P_RIGHT)))
-                return phi.substring(1);
+            String phi1;
+            if (phi == P_LEFT)
+                phi1 = satisfy(exp.substring(1));
             else
-                throw new NegationError();
+                phi1 = satisfy(exp.substring(2));
 
-        }
-
-        /* (φ' * φ'') */
-        if (exp.startsWith(String.valueOf(P_LEFT))) {
-            /* ( */
-            System.out.println("phi1 = " + exp.substring(1));
-            String phi1 = satisfy(exp.substring(1));
             String phi2 = "";
             /* OR */
-            if (phi1.startsWith(OR)) {
-                System.out.println("phi2 = " + phi1.substring(OR.length()));
+            if (phi1.startsWith(OR))
                 phi2 = satisfy(phi1.substring(OR.length()));
             /* AND */
-            } else if (phi1.startsWith(AND)) {
-                System.out.println("phi2 = " + phi1.substring(AND.length()));
+            else if (phi1.startsWith(AND))
                 phi2 = satisfy(phi1.substring(AND.length()));
             /* UNION */
-            } else if (phi1.startsWith(U)) {  // UNION
-                System.out.println("phi2 = " + phi1.substring(U.length()));
+            else if (phi1.startsWith(U))
                 phi2 = satisfy(phi1.substring(U.length()));
-            } else if (phi2.startsWith(String.valueOf(P_LEFT))) {
-                System.out.println("phi1 = " + phi1.substring(1));
+            /* ( */
+            else if (phi2.startsWith(String.valueOf(P_LEFT)))
+                return phi1.substring(1);
+            /* ) */
+            else
                 return "";
-            } else if (phi2.startsWith(String.valueOf(P_RIGHT))) {
-                return "";
-            }
-
         }
 
         return exp;

@@ -1,5 +1,6 @@
 package main;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -27,39 +28,52 @@ public class Checker {
     static int _indexP_RIGHT = 0;
     static boolean _firstP = false;
 
-    public static String label(String exp, Model M) throws Error {
+    public static Model label(String exp, Model M) throws Error {
+        String[] expr = phi(exp);
+        System.out.println("Labeling of : " + exp);
+
         // If φ = p
-        if(exp.equals("p")) {
+        if(Arrays.asList(atomic).contains(exp)) {
+            System.out.println("IN Atomic");
             for (Node n: M._nodes) {
                 if(n.getVal().equals(exp))
                     n.setPhi(true);
                 else
                     n.setPhi(false);
             }
+            return M;
         }
         // Else if φ = ¬ φ′
-        else if(exp.equals("!p")) {
-            label(exp.substring(1), M);
-            for (Node n: M._nodes) {
-                n.setPhi(!n.getPhi());
+        else if(expr[1].equals(String.valueOf(NOT))) {
+            Model Mp = label(expr[0], M);
+            for (int i = 0 ; i < M.getNbNode() ; i++) {
+                M.setNodeLabel(i, !Mp.getNodeLabel(i));
             }
+            return M;
         }
         // Else if φ = φ′ ∧ φ′′
-        else if(exp.equals("HAVE AND")){
-            String op1 = exp.substring(0, exp.indexOf("AND")-1);
-            String op2 = exp.substring(exp.indexOf("AND")+4, exp.length());
+        else if(expr[1].equals(String.valueOf(AND))){
+            Model Mp = label(expr[0], M);
+            Model Mpp = label(expr[2], M);
 
-            label(op1, M);
-            label(op2, M);
+            for (int i = 0 ; i < M.getNbNode() ; i++) {
+                M.setNodeLabel(i, Mp.getNodeLabel(i) && Mpp.getNodeLabel(i));
+            }
 
-
+            return M;
         }
         // Else if φ = EX φ′
+        else if(expr[1].equals(EX)){
+            for(Node n : M._nodes) {
+                n.setPhi(false);
+            }
+
+        }
         // Else if φ = Eφ′U φ′′
         // Else if φ = Aφ′U φ′′
         // Else if φ = EG φ′
         // Else problem
-        return "Not recognized";
+        throw new Error("Not recognize");
     }
 
     public static boolean ParseExpression(String s) throws ParsingError {
@@ -92,15 +106,14 @@ public class Checker {
                 } else if (exp.charAt(i) == P_RIGHT) {
                     _nbP_RIGHT++;
                 }
-                System.out.println("NBLEFT: " + _nbP_LEFT + " NBRIGHT: " + _indexP_RIGHT);
                 if (_nbP_LEFT == _nbP_RIGHT) {
                     _indexP_RIGHT = i;
                 /* (φ' * φ'') */
                     if (exp.substring(_indexP_LEFT, _indexP_RIGHT + 1).length() != exp.length()) {
                         if (exp.charAt(_indexP_RIGHT + 1) == AND) {
-                            expr[0] = exp.substring(_indexP_LEFT, _indexP_RIGHT);
+                            expr[0] = exp.substring(_indexP_LEFT+1, _indexP_RIGHT);
                             expr[1] = exp.substring(_indexP_RIGHT + 1, _indexP_RIGHT + 2);
-                            expr[2] = exp.substring(_indexP_RIGHT + 2);
+                            expr[2] = exp.substring(_indexP_RIGHT + 3, exp.length()-1);
                             break;
                         }
                     /* (φ) */
@@ -114,7 +127,7 @@ public class Checker {
             }
         /* !(φ') */
         } else if (exp.startsWith(String.valueOf(NOT))) {
-            expr[0] = exp.substring(1);
+            expr[0] = exp.substring(2, exp.length()-1);
             expr[1] = String.valueOf(NOT);
             expr[2] = null;
         /* EX(φ') */
@@ -153,6 +166,15 @@ public class Checker {
             expr[2] = exp.substring(i + 1, exp.length()-1);
         }
         return expr;
+    }
+
+    public static boolean isSatisfy(String CTL, Model M) {
+        M = label(CTL, M);
+        boolean isSat = false;
+        for (Node n : M._nodes) {
+            isSat = isSat || n.getPhi();
+        }
+        return isSat;
     }
 }
 

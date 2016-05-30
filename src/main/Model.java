@@ -1,5 +1,6 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -46,6 +47,36 @@ public class Model {
 
     }
 
+    public double getNbNode() {
+        return _nbNode;
+    }
+
+    public void setNodeLabel(int i, boolean val) {
+        _nodes[i].setPhi(val);
+    }
+
+    public boolean getNodeLabel(int i) {
+        return _nodes[i].getPhi();
+    }
+
+    public void printLabel() {
+        for(int i=0; i < _nbNode ; i++) {
+            System.out.println("Node : " + i + " label : " + _nodes[i].getPhi());
+        }
+    }
+
+    public ArrayList<Neighbor> findNeighbor() {
+        ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>(0);
+        for(int i=0 ; i < _nbNode ; i++) {
+            Node curr = _nodes[i];
+            for(int j = 0 ; j < curr.getSuiv().length ; j++){
+               neighbors.add(new Neighbor(curr, curr.getSuiv(j)));
+            }
+        }
+
+        return neighbors;
+    }
+
     @Override
     public String toString() {
         return "Model{\n" +
@@ -76,6 +107,10 @@ class Node {
 
     public Node[] getSuiv() {
         return _suiv;
+    }
+
+    public Node getSuiv(int i) {
+        return _suiv[i];
     }
 
     public void setSuiv(Node[] suiv) {
@@ -114,5 +149,39 @@ class Node {
                 ", _suiv=" + printNodeList(_suiv) +
                 ", _val='" + _val + '\'' +
                 "}\n";
+    }
+}
+
+class Neighbor {
+    private Node s;
+    private Node d;
+
+    public Neighbor(Node s, Node d) {
+        this.s = s;
+        this.d = d;
+    }
+
+    public Node getS() {
+        return s;
+    }
+
+    public void setS(Node s) {
+        this.s = s;
+    }
+
+    public Node getD() {
+        return d;
+    }
+
+    public void setD(Node d) {
+        this.d = d;
+    }
+
+    @Override
+    public String toString() {
+        return "Neighbor{" +
+                "s=" + s +
+                ", d=" + d +
+                '}';
     }
 }

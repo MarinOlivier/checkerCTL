@@ -47,7 +47,7 @@ public class Checker {
         }
         // Else if φ = ¬ φ′
         else if(expr[1].equals(String.valueOf(NOT))) {
-            Model Mp = label(expr[0], M);
+            Model Mp = new Model(label(expr[0], M));
             for (int i = 0 ; i < M.getNbNode() ; i++) {
                 M.setNodeLabel(i, !Mp.getNodeLabel(i));
             }
@@ -55,8 +55,8 @@ public class Checker {
         }
         // Else if φ = φ′ ∧ φ′′
         else if(expr[1].equals(String.valueOf(AND))){
-            Model Mp = label(expr[0], M);
-            Model Mpp = label(expr[2], M);
+            Model Mp = new Model(label(expr[0], M));
+            Model Mpp = new Model(label(expr[2], M));
 
             for (int i = 0 ; i < M.getNbNode() ; i++) {
                 M.setNodeLabel(i, Mp.getNodeLabel(i) && Mpp.getNodeLabel(i));
@@ -66,15 +66,21 @@ public class Checker {
         }
         // Else if φ = EX φ′
         else if(expr[1].equals(EX)){
-            Model Mp = label(expr[0], M);
+            Model Mp = new Model(label(expr[0], M));
+            Mp.printLabel();
+
             for(Node n : M._nodes) {
                 n.setPhi(false);
             }
+
+            Mp.printLabel();
             ArrayList<Neighbor> ngh = M.findNeighbor();
             for (Neighbor n: ngh) {
                 Boolean phiP = Mp.getPhi(n.getD().getName());
-                if (phiP)
+                if (phiP) {
+                    System.out.println("LOOOL");
                     n.getS().setPhi(true);
+                }
             }
             return M;
         }

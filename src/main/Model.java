@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class Model {
 
     public Node[] _nodes;
-    private double _nbNode;
+    private int _nbNode;
     private Node _initial;
 
     public Model() {
@@ -52,7 +52,17 @@ public class Model {
 
     }
 
-    public double getNbNode() {
+    public Model(Model M){
+        _initial = M.getInitial();
+        _nbNode = M.getNbNode();
+
+        _nodes = new Node[_nbNode];
+        for(int i = 0; i < _nodes.length ; i++) {
+           _nodes[i] = new Node(M._nodes[i]);
+        }
+    }
+
+    public int getNbNode() {
         return _nbNode;
     }
 
@@ -62,6 +72,14 @@ public class Model {
 
     public boolean getNodeLabel(int i) {
         return _nodes[i].getPhi();
+    }
+
+    public Node getInitial() {
+        return _initial;
+    }
+
+    public void setInitial(Node _initial) {
+        this._initial = _initial;
     }
 
     public Boolean getPhi(String NodeName) {
@@ -101,11 +119,24 @@ public class Model {
 }
 
 class Node {
-    private double _deg;
+    private int _deg;
     private String _name;
     private Node[] _suiv;
     private String _val;
     private Boolean _phi;
+
+    public Node(Node N) {
+        _deg = N.getDeg();
+        _name = N.getName();
+        _val = N.getVal();
+        _phi = N.getPhi();
+
+        _suiv = new Node[_deg];
+        System.out.println("_deg = " + _deg);
+        for(int i = 0; i < _deg ; i++) {
+            _suiv[i] = new Node(N.getSuiv(i));
+        }
+    }
 
     public Node(String val) {
         _val = val;
@@ -119,11 +150,11 @@ class Node {
         _name = name;
     }
 
-    public double getDeg() {
+    public int getDeg() {
         return _deg;
     }
 
-    public void setDeg(double deg) {
+    public void setDeg(int deg) {
         this._deg = deg;
     }
 

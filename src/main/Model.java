@@ -64,6 +64,14 @@ public class Model {
         return _nodes[i].getPhi();
     }
 
+    public Boolean getPhi(String NodeName) {
+        for (Node n : _nodes) {
+            if(n.getName().equals(NodeName))
+                return n.getPhi();
+        }
+        return false;
+    }
+
     public void printLabel() {
         for(int i=0; i < _nbNode ; i++) {
             System.out.println("Node : " + i + " label : " + _nodes[i].getPhi());

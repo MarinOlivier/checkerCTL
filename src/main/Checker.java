@@ -72,10 +72,10 @@ public class Checker {
             }
             ArrayList<Neighbor> ngh = M.findNeighbor();
             for (Neighbor n: ngh) {
-                if (n.getD().getPhi())
+                Boolean phiP = Mp.getPhi(n.getD().getName());
+                if (phiP)
                     n.getS().setPhi(true);
             }
-
             return M;
         }
 

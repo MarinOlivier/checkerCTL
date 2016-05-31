@@ -132,10 +132,7 @@ class Node {
         _phi = N.getPhi();
 
         _suiv = new Node[_deg];
-        System.out.println("_deg = " + _deg);
-        for(int i = 0; i < _deg ; i++) {
-            _suiv[i] = new Node(N.getSuiv(i));
-        }
+        this.setSuiv(N.getSuiv());
     }
 
     public Node(String val) {

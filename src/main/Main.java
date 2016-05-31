@@ -5,8 +5,6 @@ import java.util.ArrayList;
 public class Main {
 
 	public static void main(String[] args) throws ParsingError {
-		//String CTLFormula = "(!(EX!p))^(p)";
-		//String CTLFormula = "!(EX!p)";
 		//String CTLFormula = "E(pUq)";
 		//String CTLFormula = "A(pUq)";
 		//String CTLFormula = "EG(a^p)";

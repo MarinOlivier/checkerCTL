@@ -8,9 +8,9 @@ public class Main {
 		//String CTLFormula = "E(pUq)";
 		//String CTLFormula = "A(pUq)";
 		//String CTLFormula = "EG(a^p)";
-		String CTLFormula = "EX(!(p))";
+		//String CTLFormula = "(!(EX(!(p))))^(p)";
 		//String CTLFormula = "(p)^(!(q))";
-
+        String CTLFormula = "E(pU!(p))";
 		Model M = new Model();
 
         if (Checker.isSatisfy(CTLFormula, M)) {

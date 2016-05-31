@@ -19,7 +19,7 @@ public class Model {
         n1.setDeg(1);
         n1.setName("1");
 
-        Node n2 = new Node("!p");
+        Node n2 = new Node("p");
         n2.setDeg(2);
         n2.setName("2");
 
@@ -41,7 +41,7 @@ public class Model {
         n4.setSuiv(new Node[]{n5});
         n5.setSuiv(new Node[]{n1});
 
-        _nodes = new Node[(int)_nbNode];
+        _nodes = new Node[_nbNode];
         _nodes[0] = n1;
         _nodes[1] = n2;
         _nodes[2] = n3;
@@ -66,6 +66,14 @@ public class Model {
         return _nbNode;
     }
 
+    public Node getNode(String nodeName) {
+        for (Node n : _nodes) {
+            if(n.getName().equals(nodeName))
+                return n;
+        }
+
+        return null;
+    }
     public void setNodeLabel(int i, boolean val) {
         _nodes[i].setPhi(val);
     }
@@ -125,11 +133,14 @@ class Node {
     private String _val;
     private Boolean _phi;
 
+    private Boolean _seenBefore;
+
     public Node(Node N) {
         _deg = N.getDeg();
         _name = N.getName();
         _val = N.getVal();
         _phi = N.getPhi();
+        _seenBefore = N.getSeenBefore();
 
         _suiv = new Node[_deg];
         this.setSuiv(N.getSuiv());
@@ -192,6 +203,14 @@ class Node {
                 ", name = " + _name +
                 "}\n";
     }
+
+    public void setSeenBefore(boolean seenBefore) {
+        _seenBefore = seenBefore;
+    }
+    public Boolean getSeenBefore() {
+        return _seenBefore;
+    }
+
 }
 
 class Neighbor {

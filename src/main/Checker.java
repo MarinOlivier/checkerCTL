@@ -2,6 +2,7 @@ package main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -65,7 +66,7 @@ public class Checker {
             return M;
         }
         // Else if φ = EX φ′
-        else if(expr[1].equals(EX)){
+        else if(expr[1].equals(EX)) {
             Model Mp = new Model(label(expr[0], M));
             Mp.printLabel();
 
@@ -77,16 +78,41 @@ public class Checker {
             ArrayList<Neighbor> ngh = M.findNeighbor();
             for (Neighbor n: ngh) {
                 Boolean phiP = Mp.getPhi(n.getD().getName());
-                if (phiP) {
-                    System.out.println("LOOOL");
+                if (phiP)
                     n.getS().setPhi(true);
-                }
             }
             return M;
         }
-
         // Else if φ = Eφ′U φ′′
+        else if(expr[1].equals("E(")) {
+            Model Mp = new Model(label(expr[0], M));
+            Model Mpp = new Model(label(expr[2], M));
+            for (Node n : M._nodes) {
+                n.setPhi(false);
+                n.setSeenBefore(false);
+            }
+            ArrayList<Node> l = new ArrayList<Node>();
+            for (Node n : M._nodes) {
+                if (Mpp.getPhi(n.getName()))
+                    l.add(n);
+            }
+            int i = 0;
+            while (l.isEmpty()) {
+                Node s = M.getNode(l.get(i++).getName());
+                s.setPhi(true);
+                ArrayList<Neighbor> ngh = M.findNeighbor();
+                for (Neighbor n: ngh) {
+                    if (!n.getS().getSeenBefore()) {
+                        n.getS().setSeenBefore(true);
+                        if (Mp.getNode(n.getS().getName()).getPhi())
+                            l.add(n.getS());
+                    }
+                }
 
+            }
+
+            return M;
+        }
         // Else if φ = Aφ′U φ′′
         // Else if φ = EG φ′
         // Else problem

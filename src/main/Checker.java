@@ -13,20 +13,21 @@ public class Checker {
     /* Negation */
     static char NOT = '!';
 
+    /* Brackets */
     static char P_LEFT = '(';
     static char P_RIGHT = ')';
+
+    /* Symbols */
     static String EG = "EG";
     static String EX = "EX";
 
-    static final String atomic[] = {"a","b","c","d","e","f","g","h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
-
+    static String[] atomic = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
     static int _nbP_LEFT = 0;
     static int _nbP_RIGHT = 0;
 
     static int _indexP_LEFT = 0;
     static int _indexP_RIGHT = 0;
-    static boolean _firstP = false;
 
     public static Model label(String exp, Model M) throws Error {
         String[] expr = phi(exp);
@@ -67,32 +68,12 @@ public class Checker {
             for(Node n : M._nodes) {
                 n.setPhi(false);
             }
-
         }
         // Else if φ = Eφ′U φ′′
         // Else if φ = Aφ′U φ′′
         // Else if φ = EG φ′
         // Else problem
         throw new Error("Not recognize");
-    }
-
-    public static boolean ParseExpression(String s) throws ParsingError {
-        /* Evaluation des parentheses */
-        /*for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == P_LEFT)
-                _nbP_LEFT++;
-            else if (s.charAt(i) == P_RIGHT)
-                _nbP_RIGHT++;
-        }
-        if (_nbP_LEFT != _nbP_RIGHT)
-            throw new ParenthesisError();*/
-
-        /* Extraction des phi */
-        String lol[] = phi(s);
-        for (String str : lol)
-            System.out.println("str = " + str);
-
-        return true;
     }
 
     public static String[] phi(String exp) {
@@ -108,7 +89,7 @@ public class Checker {
                 }
                 if (_nbP_LEFT == _nbP_RIGHT) {
                     _indexP_RIGHT = i;
-                /* (φ' * φ'') */
+                    /* (φ' * φ'') */
                     if (exp.substring(_indexP_LEFT, _indexP_RIGHT + 1).length() != exp.length()) {
                         if (exp.charAt(_indexP_RIGHT + 1) == AND) {
                             expr[0] = exp.substring(_indexP_LEFT+1, _indexP_RIGHT);
@@ -168,7 +149,17 @@ public class Checker {
         return expr;
     }
 
-    public static boolean isSatisfy(String CTL, Model M) {
+    public static boolean isSatisfy(String CTL, Model M) throws ParsingError {
+        /* Evaluation des parentheses */
+        for (int i = 0; i < CTL.length(); i++) {
+            if (CTL.charAt(i) == P_LEFT)
+                _nbP_LEFT++;
+            else if (CTL.charAt(i) == P_RIGHT)
+                _nbP_RIGHT++;
+        }
+        if (_nbP_LEFT != _nbP_RIGHT)
+            throw new ParenthesisError();
+
         M = label(CTL, M);
         boolean isSat = false;
         for (Node n : M._nodes) {

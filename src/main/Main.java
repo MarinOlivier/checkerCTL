@@ -8,7 +8,8 @@ public class Main {
 		//String CTLFormula = "(!(EX(!(p))))^(p)";
 		//String CTLFormula = "(p)^(!(q))";
         //String CTLFormula = "E(pU!(p))";
-        String CTLFormula = "A(pU!(p))";
+        //String CTLFormula = "A(pU!(p))";
+        String CTLFormula = "EG(!(p))";
 		Model M = new Model();
 
         if (Checker.isSatisfy(CTLFormula, M)) {

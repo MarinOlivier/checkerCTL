@@ -23,7 +23,7 @@ public class Model {
         n2.setDeg(2);
         n2.setName("2");
 
-        Node n3 = new Node("p");
+        Node n3 = new Node("!p");
         n3.setDeg(3);
         n3.setName("3");
 
@@ -114,6 +114,17 @@ public class Model {
         }
 
         return neighbors;
+    }
+
+    public ArrayList<Node> pre(Node curr) {
+        ArrayList<Node> ret = new ArrayList<Node>();
+        for (Node m : this._nodes){
+            for (Node n : m.getSuiv()){
+                if(n.getName().equals(curr.getName()))
+                    ret.add(m);
+            }
+        }
+        return ret;
     }
 
     @Override
@@ -219,6 +230,11 @@ class Node {
         return _seenBefore;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Node tmp = (Node)obj;
+        return _name.equals(((Node) obj).getName());
+    }
 }
 
 class Neighbor {

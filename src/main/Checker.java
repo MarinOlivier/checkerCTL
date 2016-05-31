@@ -1,9 +1,7 @@
 package main;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Created by olivier on 19/05/2016.
@@ -137,8 +135,55 @@ public class Checker {
 
             return M;
         }
-
         // else if φ = EG(φ')
+        else if(expr[1].equals(EG)){
+            Model Mp = new Model(label(expr[0], M));
+            // ensemble d'états qui ne satisfont pas EG φ
+            ArrayList<Node> E = new ArrayList<Node>();
+            // ensemble d'états qui satisfont EG φ
+            ArrayList<Node> T = new ArrayList<Node>();
+
+            for (Node n: Mp._nodes) {
+                if (n.getPhi())
+                    E.add(n);
+                else
+                    T.add(n);
+            }
+//
+//            System.out.println("E : ");
+//            for (Node n: E) {
+//                System.out.println("n = " + n);
+//            }
+//
+//            System.out.println("T : ");
+//            for (Node n: T) {
+//                System.out.println("n = " + n);
+//            }
+
+            HashMap<String, Integer> C = new HashMap<String, Integer>();
+
+            for (Node n : T)
+                C.put(n.getName(), n.getDeg());
+
+            while (!E.isEmpty()){
+                Node s = E.get(E.size()-1);
+                E.remove(E.get(E.size()-1));
+
+                for(Node n : M.pre(s)) {
+                    if(T.contains(n)){
+                        System.out.println("HERE2");
+                        C.put(n.getName(), C.get(n.getName())-1);
+                        if(C.get(n.getName()) == 0) {
+                            T.remove(n);
+                            E.add(n);
+                        }
+                    }
+
+                }
+            }
+
+            return M;
+        }
 
         // Else problem
         throw new Error("Not recognize");

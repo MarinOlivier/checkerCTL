@@ -19,7 +19,7 @@ public class Model {
         n1.setDeg(1);
         n1.setName("1");
 
-        Node n2 = new Node("p");
+        Node n2 = new Node("!p");
         n2.setDeg(2);
         n2.setName("2");
 
@@ -128,11 +128,11 @@ public class Model {
 
 class Node {
     private int _deg;
+    private int _nb;
     private String _name;
     private Node[] _suiv;
     private String _val;
     private Boolean _phi;
-
     private Boolean _seenBefore;
 
     public Node(Node N) {
@@ -192,6 +192,14 @@ class Node {
 
     public void setPhi(Boolean _phi) {
         this._phi = _phi;
+    }
+
+    public int getNb() {
+        return _nb;
+    }
+
+    public void setNb(int nb) {
+        _nb = nb;
     }
 
     @Override

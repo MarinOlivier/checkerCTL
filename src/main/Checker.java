@@ -35,7 +35,7 @@ public class Checker {
         String[] expr = phi(exp);
         System.out.println("Labeling of : " + exp);
 
-        // If φ = p
+        // if φ = p
         if(Arrays.asList(atomic).contains(exp)) {
             System.out.println("IN Atomic");
             for (Node n: M._nodes) {
@@ -46,7 +46,7 @@ public class Checker {
             }
             return M;
         }
-        // Else if φ = ¬ φ′
+        // else if φ = ¬φ'
         else if(expr[1].equals(String.valueOf(NOT))) {
             Model Mp = new Model(label(expr[0], M));
             for (int i = 0 ; i < M.getNbNode() ; i++) {
@@ -54,7 +54,7 @@ public class Checker {
             }
             return M;
         }
-        // Else if φ = φ′ ∧ φ′′
+        // else if φ = φ' ∧ φ''
         else if(expr[1].equals(String.valueOf(AND))){
             Model Mp = new Model(label(expr[0], M));
             Model Mpp = new Model(label(expr[2], M));
@@ -65,7 +65,7 @@ public class Checker {
 
             return M;
         }
-        // Else if φ = EX φ′
+        // else if φ = EX(φ')
         else if(expr[1].equals(EX)) {
             Model Mp = new Model(label(expr[0], M));
             Mp.printLabel();
@@ -83,7 +83,7 @@ public class Checker {
             }
             return M;
         }
-        // Else if φ = Eφ′U φ′′
+        // else if φ = E(φ' U φ'')
         else if(expr[1].equals("E(")) {
             Model Mp = new Model(label(expr[0], M));
             Model Mpp = new Model(label(expr[2], M));
@@ -96,9 +96,9 @@ public class Checker {
                 if (Mpp.getPhi(n.getName()))
                     l.add(n);
             }
-            int i = 0;
-            while (l.isEmpty()) {
-                Node s = M.getNode(l.get(i++).getName());
+            while (!l.isEmpty()) {
+                Node s = M.getNode(l.get(l.size()-1).getName());
+                l.remove(l.get(l.size()-1));
                 s.setPhi(true);
                 ArrayList<Neighbor> ngh = M.findNeighbor();
                 for (Neighbor n: ngh) {
@@ -108,19 +108,44 @@ public class Checker {
                             l.add(n.getS());
                     }
                 }
-
             }
 
             return M;
         }
-        // Else if φ = Aφ′U φ′′
-        // Else if φ = EG φ′
+        // else if φ = A(φ' U φ'')
+        else if(expr[1].equals("A(")) {
+            Model Mp = new Model(label(expr[0], M));
+            Model Mpp = new Model(label(expr[2], M));
+            ArrayList<Node> l = new ArrayList<Node>();
+            for (Node n : M._nodes) {
+                n.setNb(n.getDeg());
+                M.getNode(n.getName()).setPhi(false);
+                if (Mpp.getNode(n.getName()).getPhi())
+                    l.add(n);
+            }
+            while (!l.isEmpty()) {
+                Node s = M.getNode(l.get(l.size()-1).getName());
+                l.remove(l.get(l.size()-1));
+                s.setPhi(true);
+                ArrayList<Neighbor> ngh = M.findNeighbor();
+                for (Neighbor n: ngh) {
+                    n.getS().setNb(n.getS().getNb()-1);
+                    if (n.getS().getNb() == 0 && Mp.getNode(n.getS().getName()).getPhi() && !(M.getNode(n.getS().getName()).getPhi()))
+                        l.add(n.getS());
+                }
+            }
+
+            return M;
+        }
+
+        // else if φ = EG(φ')
+
         // Else problem
         throw new Error("Not recognize");
     }
 
     public static String[] phi(String exp) {
-        int i = 0;
+        int i;
         String expr[] = new String[3];
         // Si exp commence par '('
         if (exp.startsWith(String.valueOf(P_LEFT))) {

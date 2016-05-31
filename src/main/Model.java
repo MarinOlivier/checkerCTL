@@ -17,22 +17,27 @@ public class Model {
 
         Node n1 = new Node("p");
         n1.setDeg(1);
+        n1.setName("1");
 
         Node n2 = new Node("!p");
         n2.setDeg(2);
+        n2.setName("2");
 
         Node n3 = new Node("p");
-        n3.setDeg(2);
+        n3.setDeg(3);
+        n3.setName("3");
 
         Node n4 = new Node("!p");
         n4.setDeg(1);
+        n4.setName("4");
 
         Node n5 = new Node("p");
         n5.setDeg(1);
+        n5.setName("5");
 
         n1.setSuiv(new Node[]{n2});
         n2.setSuiv(new Node[]{n1, n3});
-        n3.setSuiv(new Node[]{n1, n4});
+        n3.setSuiv(new Node[]{n1, n4, n2});
         n4.setSuiv(new Node[]{n5});
         n5.setSuiv(new Node[]{n1});
 
@@ -89,12 +94,21 @@ public class Model {
 
 class Node {
     private double _deg;
+    private String _name;
     private Node[] _suiv;
     private String _val;
     private Boolean _phi;
 
     public Node(String val) {
         _val = val;
+    }
+
+    public String getName() {
+        return _name;
+    }
+
+    public void setName(String name) {
+        _name = name;
     }
 
     public double getDeg() {
@@ -125,15 +139,6 @@ class Node {
         this._val = _val;
     }
 
-    private String printNodeList(Node[] list) {
-        String res = "[ ";
-        for (Node n: _suiv) {
-            res = res + " | " + n.getVal();
-        }
-        res += " ]";
-        return res;
-    }
-
     public Boolean getPhi() {
         return _phi;
     }
@@ -144,10 +149,11 @@ class Node {
 
     @Override
     public String toString() {
-        return "\tNode{" +
-                "_deg=" + _deg +
-                ", _suiv=" + printNodeList(_suiv) +
+        return "\tNode: (" +
+                "nbVoisins = " + _deg +
+                ", suivants =" + _suiv +
                 ", _val='" + _val + '\'' +
+                ", name = " + _name +
                 "}\n";
     }
 }
@@ -180,8 +186,8 @@ class Neighbor {
     @Override
     public String toString() {
         return "Neighbor{" +
-                "s=" + s +
-                ", d=" + d +
+                "s=" + s.getName() +
+                ", d=" + d.getName() +
                 '}';
     }
 }

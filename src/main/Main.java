@@ -10,13 +10,12 @@ public class Main {
 		//String CTLFormula = "E(pUq)";
 		//String CTLFormula = "A(pUq)";
 		//String CTLFormula = "EG(a^p)";
-		//String CTLFormula = "EX(pUq)";
-		String CTLFormula = "(p)^(!(q))";
+		String CTLFormula = "EX(!(p))";
+		//String CTLFormula = "(p)^(!(q))";
 
 		Model M = new Model();
 
-		//Checker.ParseExpression(CTLFormula);
-        if(Checker.isSatisfy(CTLFormula, M)){
+        if (Checker.isSatisfy(CTLFormula, M)) {
             System.out.println(CTLFormula + " is satisfied by the model.");
         } else {
             System.out.println(CTLFormula + " is NOT satisfied by the model.");

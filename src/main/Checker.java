@@ -1,5 +1,6 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -65,11 +66,21 @@ public class Checker {
         }
         // Else if φ = EX φ′
         else if(expr[1].equals(EX)){
+            Model Mp = label(expr[0], M);
             for(Node n : M._nodes) {
                 n.setPhi(false);
             }
+            ArrayList<Neighbor> ngh = M.findNeighbor();
+            for (Neighbor n: ngh) {
+                if (n.getD().getPhi())
+                    n.getS().setPhi(true);
+            }
+
+            return M;
         }
+
         // Else if φ = Eφ′U φ′′
+
         // Else if φ = Aφ′U φ′′
         // Else if φ = EG φ′
         // Else problem
@@ -113,12 +124,12 @@ public class Checker {
             expr[2] = null;
         /* EX(φ') */
         } else if (exp.startsWith(EX)) {
-            expr[0] = exp.substring(EX.length());
+            expr[0] = exp.substring(3, exp.length()-1);
             expr[1] = EX;
             expr[2] = null;
         /* EG(φ') */
         } else if (exp.startsWith(EG)) {
-            expr[0] = exp.substring(EG.length());
+            expr[0] = exp.substring(3, exp.length()-1);
             expr[1] = EG;
             expr[2] = null;
         /* E(φ' U φ'') */
